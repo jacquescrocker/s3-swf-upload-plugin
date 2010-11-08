@@ -1,23 +1,33 @@
-require 'aws/s3'
+require 's3'
 
 namespace :s3_swf_upload do
-  desc "create a bucket according to your setting in config/amazon_s3.yml"
-  task :make_bucket => :environment do
-    connect_s3!
-    AWS::S3::Bucket.create(S3SwfUpload::S3Config.bucket)
+
+  desc "Setup s3 swf upload to start accepting uploads (creates bucket and crossdomain.xml file)"
+  task :remote_setup => :environment do
+    bucket = find_or_create_bucket
+    file_path = File.expand_path(File.join(File.dirname(__FILE__), 'crossdomain.xml'))
+
+    new_object = @bucket.objects.build("crossdomain.xml")
+    new_object.content = open(file_path)
+    new_object.acl = public_read
+    new_object.save
   end
 
-  desc "put a standard crossdomain.xml into your bucket"
-  task :make_crossdomain => :environment do
-    connect_s3!
-    file = File.expand_path(File.join(File.dirname(__FILE__), 'crossdomain.xml'))
-    AWS::S3::S3Object.store('crossdomain.xml', open(file), S3SwfUpload::S3Config.bucket, :access => :public_read)
-  end
 
-  def connect_s3!
-    AWS::S3::Base.establish_connection!(
-      :access_key_id => S3SwfUpload::S3Config.access_key_id,
-      :secret_access_key => S3SwfUpload::S3Config.secret_access_key
-    )
+  def find_or_create_bucket
+    bucket_name = S3SwfUpload.s3_bucket
+
+    s3_service = S3::Service.new({
+      :access_key_id => S3SwfUpload.s3_access_key_id,
+      :secret_access_key => S3SwfUpload.s3_secret_access_key
+    })
+
+    begin
+      s3_service.buckets.find(bucket_name)
+    rescue S3::Error::NoSuchBucket
+      bucket = s3_service.buckets.build(bucket_name)
+      bucket.save
+      bucket
+    end
   end
 end
