@@ -21,7 +21,7 @@ h2. Usage
 <pre><code>gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
 gem 'aws-s3', :require => 'aws/s3'
 </code></pre>
-	
+
 2. Bundle it!
 
 <pre><code>$ bundle install
@@ -31,40 +31,31 @@ gem 'aws-s3', :require => 'aws/s3'
 
 <pre><code>$ rails generate s3_swf_upload:uploader
 </code></pre>
-	
-4. Configure your amazon parameters via the generated <code>config/amazon_s3.yml</code> file.
 
-5. Generate the bucket (if you haven't already)
+4. Configure your s3 settings in the generated <code>config/initializers/s3_swf_upload.rb</code> file.
 
-<pre><code>$ rake s3_swf_upload:make_bucket
-</code></pre>
-	
-6. Upload the crossdomain.xml file (if you haven't already)
+5. Run the setup rake task (on all environments)
 
-<pre><code>$ rake s3_swf_upload:make_crossdomain
+<pre><code>$ rake s3_swf_upload:remote_setup
 </code></pre>
 
-7. Note: you no longer need to edit <code>app/controller/s3_uploads_controller.rb</code>
+This will create the bucket and set them up with crossdomain.xml configured
 
-In my tests in Rails 3, the application was able to correctly handle the requests from the flash object.
-
-This means that your authentication systems can still be used to protect the signature generation.
-
-8. Initialize the SWF object in your view using this handy helper:
+6. Initialize the SWF object in your view using this handy helper:
 
 <pre><code><%=raw s3_swf_upload_tag %>
 </code></pre>
 
-9. To achieve basic functionality, the only other thing you need is something to call the <code>startUploading</code> function.  For example:
+7. To achieve basic functionality, the only other thing you need is something to call the <code>startUploading</code> function.  For example:
 
 <pre><code><input type="submit" value="Start Uploading" onclick="s3_swf_1_object.startUploading();" />
 </code></pre>
 
 However, you will have no feedback or interface to let you know that anything is actually happening.
 
-10. If you want to customise its behavior, "here's a more complex example":http://gist.github.com/382979 
+8. If you want to customise its behavior, "here's a more complex example":http://gist.github.com/382979
 
-And the "CSS":http://gist.github.com/383118 to go along. 
+And the "CSS":http://gist.github.com/383118 to go along.
 
 h2. General Parameters
 
@@ -169,7 +160,7 @@ Removes a specific file from the queue.
 
 h2. Will it work with < Rails 3?
 
-You bet.  The Rails 3 specific gem only makes installation and setup easier.  Download the gem to your desktop (or similar non-gem path location) and perform all the Usage steps by hand.  Namely: 
+You bet.  The Rails 3 specific gem only makes installation and setup easier.  Download the gem to your desktop (or similar non-gem path location) and perform all the Usage steps by hand.  Namely:
 
  * copy the "template files":http://github.com/nathancolgate/s3-swf-upload-plugin/tree/master/lib/s3_swf_upload/railties/generators/uploader/templates/ into your application (use the "generator":http://github.com/nathancolgate/s3-swf-upload-plugin/blob/master/lib/s3_swf_upload/railties/generators/uploader/uploader_generator.rb as a road map)
 * copy the "view helpers":http://github.com/nathancolgate/s3-swf-upload-plugin/blob/master/lib/s3_swf_upload/view_helpers.rb into your applications <code>/lib</code> directory.

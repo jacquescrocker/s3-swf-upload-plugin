@@ -1,14 +1,19 @@
 require 'rubygems'
-require 'rake'
-require 'echoe'
 
-Echoe.new("s3_swf_upload") do |p|
-p.author         = "Nathan Colgate"
-p.email          = "nathan@brandnewbox.com"
-p.description    = "Rails 3 gem that allows you to upload files directly to S3 from your application using flex for file management, css for presentation, and javascript for behavior."
-p.url            = "http://github.com/nathancolgate/s3-swf-upload-plugin"
-p.version       = '0.3.0'
-p.development_dependencies = []
-p.ignore_pattern = [".gitignore"]
+require 'rake'
+require 'rake/gempackagetask'
+
+gemspec = eval(File.read('s3_swf_upload.gemspec'))
+Rake::GemPackageTask.new(gemspec) do |pkg|
+  pkg.gem_spec = gemspec
 end
 
+desc "build the gem and release it to rubygems.org"
+task :release => :gem do
+  puts "Tagging #{gemspec.version}..."
+  system "git tag -a #{gemspec.version} -m 'Tagging #{gemspec.version}'"
+  puts "Pushing to Github..."
+  system "git push --tags"
+  puts "Pushing to rubygems.org..."
+  system "gem push pkg/#{gemspec.name}-#{gemspec.version}.gem"
+end
